@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 
 from app.models.project import ProjectStatus
 
 
 class ProjectBase(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=255)
     description: str | None = None
-    manager_id: int | None = None
+    manager_id: PositiveInt | None = None
 
 
 class ProjectCreate(ProjectBase):
@@ -16,9 +16,9 @@ class ProjectCreate(ProjectBase):
 
 
 class ProjectUpdate(BaseModel):
-    name: str | None = None
+    name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = None
-    manager_id: int | None = None
+    manager_id: PositiveInt | None = None
     status: ProjectStatus | None = None
 
 
