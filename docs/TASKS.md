@@ -14,16 +14,16 @@ Tick `[x]` khi làm xong. Xem bối cảnh từng ngày tại [PLAN.md](PLAN.md)
 - [x] `main.py` khởi tạo app, include router
 - [x] Migration đầu tiên (`alembic revision --autogenerate` + `upgrade head`), verify bằng Postgres Docker tạm
 
-## Ngày 2 — CRUD cơ bản với SQLAlchemy, Pydantic & APIRouter
+## Ngày 2 — CRUD cơ bản với SQLAlchemy, Pydantic & APIRouter ✅
 
-- [ ] Pydantic schemas cho Project (Create/Update/Response)
-- [ ] Pydantic schemas cho Tag (Create/Update/Response)
-- [ ] CRUD layer (`crud/project.py`, `crud/tag.py`)
-- [ ] `GET /api/projects`
-- [ ] `GET /api/projects/{project_id}`
-- [ ] `POST /api/projects`, `PATCH /api/projects/{id}`, `DELETE /api/projects/{id}`
-- [ ] `GET /api/tags`, `POST /api/tags`, `PATCH /api/tags/{id}`, `DELETE /api/tags/{id}`
-- [ ] Test qua Swagger UI (`/docs`)
+- [x] Pydantic schemas cho Project (Create/Update/Response)
+- [x] Pydantic schemas cho Tag (Create/Update/Response)
+- [x] CRUD layer (`crud/project.py`, `crud/tag.py`)
+- [x] `GET /api/projects`
+- [x] `GET /api/projects/{project_id}`
+- [x] `POST /api/projects`, `PATCH /api/projects/{id}`, `DELETE /api/projects/{id}`
+- [x] `GET /api/tags`, `POST /api/tags`, `PATCH /api/tags/{id}`, `DELETE /api/tags/{id}`
+- [x] Test qua Swagger UI (`/docs`) — verify bằng curl end-to-end (create/list/get/update/delete + 404)
 
 ## Ngày 3 — Quan hệ Model & Tối ưu hóa truy vấn
 
