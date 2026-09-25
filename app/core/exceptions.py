@@ -10,3 +10,13 @@ class AppException(Exception):
 class NotFoundException(AppException):
     def __init__(self, message: str) -> None:
         super().__init__(status_code=404, message=message)
+
+
+class ConflictException(AppException):
+    def __init__(self, message: str) -> None:
+        super().__init__(status_code=409, message=message)
+
+
+class UnauthorizedException(AppException):
+    def __init__(self, message: str) -> None:
+        super().__init__(status_code=401, message=message)
