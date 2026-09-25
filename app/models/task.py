@@ -27,7 +27,7 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"))
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
     title: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(Text, default=None)
     status: Mapped[TaskStatus] = mapped_column(
@@ -37,8 +37,13 @@ class Task(Base):
         Enum(TaskPriority, name="task_priority"), default=TaskPriority.MEDIUM
     )
     due_date: Mapped[date | None] = mapped_column(default=None)
-    assignee_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None)
-    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    assignee_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id"), default=None, index=True
+    )
+    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
+    project = relationship("Project", back_populates="tasks")
+    assignee = relationship("User", foreign_keys=[assignee_id])
+    creator = relationship("User", foreign_keys=[created_by])
     tags = relationship("Tag", secondary=task_tags, back_populates="tasks")

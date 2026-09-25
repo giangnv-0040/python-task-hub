@@ -8,7 +8,7 @@ Cấu trúc thư mục chuẩn (`routers/models/schemas/crud`), kết nối DB a
 ## Ngày 2 — CRUD cơ bản với SQLAlchemy, Pydantic & APIRouter ✅ Hoàn thành
 Pydantic schemas (Create/Update/Response) cho Project & Tag, CRUD layer, full CRUD endpoints, test qua Swagger UI (`/docs`).
 
-## Ngày 3 — Quan hệ Model & Tối ưu hóa truy vấn
+## Ngày 3 — Quan hệ Model & Tối ưu hóa truy vấn ✅ Hoàn thành
 ForeignKey/relationship, many-to-many Task-Tag, eager loading (`joinedload`), nested Pydantic models, endpoint task theo project.
 
 ## Ngày 4 — Xác thực người dùng bằng JWT & OAuth2
