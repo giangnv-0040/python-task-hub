@@ -5,7 +5,7 @@ Xây dựng tuần tự từng ngày (tutorial-driven), mỗi ngày kết thúc 
 ## Ngày 1 — Setup môi trường & làm quen FastAPI/SQLAlchemy ✅ Hoàn thành
 Cấu trúc thư mục chuẩn (`routers/models/schemas/crud`), kết nối DB async, `.env`, models SQLAlchemy (User/Project/Task/Tag/Comment + bảng trung gian), router rỗng, Alembic + migration đầu tiên.
 
-## Ngày 2 — CRUD cơ bản với SQLAlchemy, Pydantic & APIRouter
+## Ngày 2 — CRUD cơ bản với SQLAlchemy, Pydantic & APIRouter ✅ Hoàn thành
 Pydantic schemas (Create/Update/Response) cho Project & Tag, CRUD layer, full CRUD endpoints, test qua Swagger UI (`/docs`).
 
 ## Ngày 3 — Quan hệ Model & Tối ưu hóa truy vấn
