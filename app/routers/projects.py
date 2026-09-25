@@ -4,9 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import NotFoundException
 from app.core.messages import PROJECT_NOT_FOUND
 from app.crud import project as crud_project
+from app.crud import task as crud_task
 from app.database import get_db
 from app.models.project import Project
+from app.models.task import Task
 from app.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
+from app.schemas.task import TaskCreate, TaskRead
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
 
@@ -70,3 +73,33 @@ async def delete_project(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     await crud_project.delete_project(db, project)
+
+
+@router.get(
+    "/{project_id}/tasks",
+    response_model=list[TaskRead],
+    summary="Danh sách task trong project",
+    responses={404: {"description": "Project không tồn tại"}},
+)
+async def list_project_tasks(
+    project: Project = Depends(get_project_detail),
+    db: AsyncSession = Depends(get_db),
+) -> list[TaskRead]:
+    tasks = await crud_task.get_tasks_by_project(db, project.id)
+    return [TaskRead.model_validate(t) for t in tasks]
+
+
+@router.post(
+    "/{project_id}/tasks",
+    response_model=TaskRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Tạo task trong project",
+    responses={404: {"description": "Project không tồn tại"}},
+)
+async def create_project_task(
+    data: TaskCreate,
+    project: Project = Depends(get_project_detail),
+    db: AsyncSession = Depends(get_db),
+) -> TaskRead:
+    task = await crud_task.create_task(db, project.id, data)
+    return TaskRead.model_validate(task)

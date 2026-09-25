@@ -41,4 +41,7 @@ class Task(Base):
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
+    project = relationship("Project", back_populates="tasks")
+    assignee = relationship("User", foreign_keys=[assignee_id])
+    creator = relationship("User", foreign_keys=[created_by])
     tags = relationship("Tag", secondary=task_tags, back_populates="tasks")

@@ -25,14 +25,14 @@ Tick `[x]` khi làm xong. Xem bối cảnh từng ngày tại [PLAN.md](PLAN.md)
 - [x] `GET /api/tags`, `POST /api/tags`, `PATCH /api/tags/{id}`, `DELETE /api/tags/{id}`
 - [x] Test qua Swagger UI (`/docs`) — verify bằng curl end-to-end (create/list/get/update/delete + 404)
 
-## Ngày 3 — Quan hệ Model & Tối ưu hóa truy vấn
+## Ngày 3 — Quan hệ Model & Tối ưu hóa truy vấn ✅
 
-- [ ] ForeignKey/relationship đầy đủ giữa các model
-- [ ] Many-to-many Task-Tag qua `joinedload`
-- [ ] Nested Pydantic models (Project kèm Tasks)
-- [ ] `GET /api/projects/{project_id}/tasks`
-- [ ] `POST /api/projects/{project_id}/tasks`
-- [ ] `GET /api/users/{username}/profile`
+- [x] ForeignKey/relationship đầy đủ giữa các model (Project↔Task, Task→assignee/creator, Task↔Tag)
+- [x] Many-to-many Task-Tag qua `joinedload`
+- [x] Nested Pydantic models (`TaskRead.tags: list[TagRead]`)
+- [x] `GET /api/projects/{project_id}/tasks`
+- [x] `POST /api/projects/{project_id}/tasks`
+- [x] `GET /api/users/{username}/profile`
 
 ## Ngày 4 — Xác thực người dùng bằng JWT & OAuth2
 
