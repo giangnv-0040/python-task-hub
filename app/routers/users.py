@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_current_user
+from app.core.constants import UNAUTHORIZED_RESPONSE
+from app.core.deps import get_current_active_user, get_current_user
 from app.core.exceptions import ConflictException, NotFoundException, UnauthorizedException
 from app.core.messages import (
     EMAIL_ALREADY_EXISTS,
@@ -56,7 +57,7 @@ async def login(
     "/me",
     response_model=UserProfile,
     summary="Thông tin user hiện tại",
-    responses={401: {"description": "Chưa đăng nhập hoặc token không hợp lệ"}},
+    responses=UNAUTHORIZED_RESPONSE,
 )
 async def get_me(current_user: User = Depends(get_current_user)) -> UserProfile:
     return UserProfile.model_validate(current_user)
@@ -67,13 +68,15 @@ async def get_me(current_user: User = Depends(get_current_user)) -> UserProfile:
     response_model=UserProfile,
     summary="Cập nhật thông tin user hiện tại",
     responses={
-        401: {"description": "Chưa đăng nhập hoặc token không hợp lệ"},
+        **UNAUTHORIZED_RESPONSE,
+        403: {"description": "Tài khoản bị khoá"},
         409: {"description": "Email đã được user khác sử dụng"},
     },
 )
 async def update_me(
     data: UserUpdate,
-    current_user: User = Depends(get_current_user),
+    # Tai khoan bi khoa van xem duoc GET /me nhung khong duoc sua thong tin
+    current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> UserProfile:
     if data.email is not None and data.email != current_user.email:

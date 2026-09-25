@@ -26,3 +26,8 @@ class UnauthorizedException(AppException):
         super().__init__(
             status_code=401, message=message, headers={"WWW-Authenticate": "Bearer"}
         )
+
+
+class ForbiddenException(AppException):
+    def __init__(self, message: str) -> None:
+        super().__init__(status_code=403, message=message)
