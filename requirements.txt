@@ -6,3 +6,10 @@ alembic>=1.13
 python-dotenv>=1.0
 pydantic>=2.7
 pydantic-settings>=2.3
+email-validator>=2.1
+passlib[bcrypt]>=1.7
+# bcrypt>=4.1 dropped `__about__.__version__`, which breaks passlib 1.7.4's
+# backend detection (passlib is unmaintained, last release 2020).
+bcrypt<4.1
+python-jose[cryptography]>=3.3
+python-multipart>=0.0.9
