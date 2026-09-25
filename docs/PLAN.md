@@ -14,7 +14,7 @@ ForeignKey/relationship, many-to-many Task-Tag, eager loading (`joinedload`), ne
 ## Ngày 4 — Xác thực người dùng bằng JWT & OAuth2 ✅ Hoàn thành
 Hash password (passlib/bcrypt), JWT access token, `get_current_user` dependency, register/login/me.
 
-## Ngày 5 — Phân quyền (Dependencies), Filtering, Pagination
+## Ngày 5 — Phân quyền (Dependencies), Filtering, Pagination ✅ Hoàn thành
 Custom dependencies (`verify_admin_role`, `verify_project_manager`), filter theo status/priority, pagination `skip`/`limit`, bookmark task.
 
 ## Ngày 6 — Nghiệp vụ phức tạp & Transaction
