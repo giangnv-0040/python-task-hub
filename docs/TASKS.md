@@ -44,14 +44,14 @@ Tick `[x]` khi làm xong. Xem bối cảnh từng ngày tại [PLAN.md](PLAN.md)
 - [x] `GET /api/users/me`
 - [x] `PUT /api/users/me`
 
-## Ngày 5 — Phân quyền (Dependencies), Filtering, Pagination
+## Ngày 5 — Phân quyền (Dependencies), Filtering, Pagination ✅
 
-- [ ] Dependency `get_current_active_user`
-- [ ] Dependency `verify_admin_role`
-- [ ] Dependency `verify_project_manager`
-- [ ] Filtering: `GET /api/tasks?status=&priority=`
-- [ ] Pagination: `GET /api/projects/{id}/tasks?skip=&limit=`
-- [ ] `POST /api/tasks/{task_id}/bookmark` (yêu cầu đã login)
+- [x] Dependency `get_current_active_user`
+- [x] Dependency `verify_admin_role`
+- [x] Dependency `verify_project_manager`
+- [x] Filtering: `GET /api/tasks?status=&priority=`
+- [x] Pagination: `GET /api/projects/{id}/tasks?skip=&limit=` (dependency `PaginationDep` dùng chung)
+- [x] `POST /api/tasks/{task_id}/bookmark` (yêu cầu đã login, chặn bookmark trùng)
 
 ## Ngày 6 — Nghiệp vụ phức tạp & Transaction
 
