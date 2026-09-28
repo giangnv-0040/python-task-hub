@@ -17,16 +17,18 @@ Hash password (passlib/bcrypt), JWT access token, `get_current_user` dependency,
 ## Ngày 5 — Phân quyền (Dependencies), Filtering, Pagination
 Custom dependencies (`verify_admin_role`, `verify_project_manager`), filter theo status/priority, pagination `skip`/`limit`, bookmark task.
 
-## Ngày 6 — Nghiệp vụ phức tạp & Transaction
-Assign task, comment, kiểm soát quyền chặt chẽ (chỉ tác giả comment hoặc Admin/PM được sửa/xoá).
+## Ngày 6 — Nghiệp vụ phức tạp, Transaction & Xử lý file
+Assign task, comment, kiểm soát quyền chặt chẽ (chỉ tác giả comment hoặc Admin/PM được sửa/xoá). Đính kèm file cho task: `UploadFile` đọc theo chunk, validate size/type, `StreamingResponse` khi download, interface `StorageBackend` đổi được giữa local và S3 (MinIO). Bổ sung index cho các cột filter/FK còn thiếu.
 
-## Ngày 7 — Testing, Background Tasks & Caching
-Pytest integration test (đăng ký + tạo task), background task gửi email khi có comment, cache Redis cho danh sách tag.
+## Ngày 7 — Testing, Background Jobs (Celery) & Caching
+Unit test + e2e test với pytest, pytest-asyncio, httpx `AsyncClient` (DB test riêng, override dependency). Celery + Redis gửi email khi có comment/assign (Mailpit khi dev), Celery Beat chạy job nhắc task sắp đến hạn. Cache Redis cho danh sách tag.
 
-## Ngày 8 — Tổng kết, Build hoàn chỉnh
-CORS, logging, Dockerfile + docker-compose (App + PostgreSQL).
+## Ngày 8 — Tổng kết, Debug, Seeder & Build hoàn chỉnh
+CORS, logging tập trung + middleware log request, debug bằng debugpy (attach từ VSCode vào container), CLI seeder bằng Typer, Dockerfile + docker-compose (App + PostgreSQL + Redis + Celery worker/beat + Mailpit + MinIO).
 
 ## Quyết định đã chốt
 - **Nguồn chuẩn**: lộ trình 8 ngày (không phải đặc tả workspace-based gốc).
 - **DB**: PostgreSQL, SQLAlchemy 2.x async, Alembic.
+- **Background job**: Celery + Redis (không dùng ARQ); lập lịch bằng Celery Beat.
+- **Xử lý file**: gộp vào Ngày 6 (không tách ngày riêng).
 - **Hình thức**: build từng ngày, dừng lại review sau mỗi ngày.
