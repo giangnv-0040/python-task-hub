@@ -53,22 +53,41 @@ Tick `[x]` khi làm xong. Xem bối cảnh từng ngày tại [PLAN.md](PLAN.md)
 - [ ] Pagination: `GET /api/projects/{id}/tasks?skip=&limit=`
 - [ ] `POST /api/tasks/{task_id}/bookmark` (yêu cầu đã login)
 
-## Ngày 6 — Nghiệp vụ phức tạp & Transaction
+## Ngày 6 — Nghiệp vụ phức tạp, Transaction & Xử lý file
 
 - [ ] `POST /api/tasks/{task_id}/assign`
 - [ ] `POST /api/tasks/{task_id}/comments`
 - [ ] `DELETE /api/tasks/{task_id}/comments/{comment_id}` (chỉ tác giả hoặc Admin/PM)
+- [ ] Migration index: `comments.task_id`, `comments.author_id`, composite `tasks(status, priority)`
+- [ ] Model `Attachment` + migration (có index `attachments.task_id`)
+- [ ] Interface `StorageBackend` + `LocalStorage` + `S3Storage` (aioboto3), chọn qua `STORAGE_BACKEND`
+- [ ] `POST /api/tasks/{task_id}/attachments` (`UploadFile`, đọc theo chunk, giới hạn size, whitelist content type, `storage_key` = UUID)
+- [ ] `GET /api/tasks/{task_id}/attachments` (có pagination)
+- [ ] `GET /api/attachments/{attachment_id}/download` (`StreamingResponse` + `Content-Disposition`)
+- [ ] `DELETE /api/attachments/{attachment_id}` (người upload hoặc Admin/PM; xoá cả file trên storage)
 
-## Ngày 7 — Testing, Background Tasks & Caching
+## Ngày 7 — Testing, Background Jobs (Celery) & Caching
 
-- [ ] Pytest integration test: luồng đăng ký + tạo task (`TestClient`)
-- [ ] Background task: gửi email khi có người comment vào task
+- [ ] Cài `pytest`, `pytest-asyncio`, `httpx`; cấu hình `asyncio_mode` trong `pytest.ini`/`pyproject.toml`
+- [ ] `tests/conftest.py`: DB test riêng, tạo/drop schema, override `get_db`, fixture `AsyncClient` + user/token
+- [ ] Unit test: `core/security` (hash/verify password, tạo/giải mã JWT)
+- [ ] Unit test: `crud/*` và dependency phân quyền (`verify_admin_role`, `verify_project_manager`)
+- [ ] E2E test: register → login → tạo project/task → comment → upload/download file
+- [ ] E2E test: case lỗi 401/403/404, filter + pagination `GET /api/tasks`
+- [ ] Celery app (`app/worker/celery_app.py`) với Redis broker/backend
+- [ ] Celery task `send_comment_notification` + `send_assign_notification` (có retry), gọi `.delay()` sau commit
+- [ ] Celery Beat: job `remind_due_tasks` nhắc task sắp đến hạn (24h) mỗi sáng
+- [ ] Test Celery task (chạy eager / mock `.delay()`), kiểm tra mail qua Mailpit
 - [ ] Cache Redis cho `GET /api/tags`, invalidate khi có thay đổi
 
-## Ngày 8 — Tổng kết, Build hoàn chỉnh
+## Ngày 8 — Tổng kết, Debug, Seeder & Build hoàn chỉnh
 
 - [ ] CORS: cấu hình `CORSMiddleware`
-- [ ] Logging: cấu hình log theo dõi lỗi server
+- [ ] Logging: `app/core/logging.py` (format, `LOG_LEVEL` từ env), dùng `logging.getLogger(__name__)` trong code
+- [ ] Middleware log request (method, path, status, thời gian xử lý) + exception handler log lỗi 500
+- [ ] debugpy: bật qua `DEBUGPY=1`, expose port `5678`, thêm `.vscode/launch.json` để attach
+- [ ] CLI Typer `app/cli.py`: lệnh `seed` (`--users`, `--projects`, `--tasks-per-project`), `create-admin`, `reset-db`
+- [ ] Seeder idempotent (chạy lại không tạo trùng)
 - [ ] `Dockerfile`
-- [ ] `docker-compose.yml` (App + PostgreSQL)
+- [ ] `docker-compose.yml` (App + PostgreSQL + Redis + Celery worker + Celery beat + Mailpit + MinIO)
 - [ ] `docker compose up` chạy được toàn bộ stack
