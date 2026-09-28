@@ -53,18 +53,18 @@ Tick `[x]` khi làm xong. Xem bối cảnh từng ngày tại [PLAN.md](PLAN.md)
 - [x] Pagination: `GET /api/projects/{id}/tasks?skip=&limit=` (dependency `PaginationDep` dùng chung)
 - [x] `POST /api/tasks/{task_id}/bookmark` (yêu cầu đã login, chặn bookmark trùng)
 
-## Ngày 6 — Nghiệp vụ phức tạp, Transaction & Xử lý file
+## Ngày 6 — Nghiệp vụ phức tạp, Transaction & Xử lý file ✅
 
-- [ ] `POST /api/tasks/{task_id}/assign`
-- [ ] `POST /api/tasks/{task_id}/comments`
-- [ ] `DELETE /api/tasks/{task_id}/comments/{comment_id}` (chỉ tác giả hoặc Admin/PM)
-- [ ] Migration index: `comments.task_id`, `comments.author_id`, composite `tasks(status, priority)`
-- [ ] Model `Attachment` + migration (có index `attachments.task_id`)
-- [ ] Interface `StorageBackend` + `LocalStorage` + `S3Storage` (aioboto3), chọn qua `STORAGE_BACKEND`
-- [ ] `POST /api/tasks/{task_id}/attachments` (`UploadFile`, đọc theo chunk, giới hạn size, whitelist content type, `storage_key` = UUID)
-- [ ] `GET /api/tasks/{task_id}/attachments` (có pagination)
-- [ ] `GET /api/attachments/{attachment_id}/download` (`StreamingResponse` + `Content-Disposition`)
-- [ ] `DELETE /api/attachments/{attachment_id}` (người upload hoặc Admin/PM; xoá cả file trên storage)
+- [x] `POST /api/tasks/{task_id}/assign`
+- [x] `POST /api/tasks/{task_id}/comments`
+- [x] `DELETE /api/tasks/{task_id}/comments/{comment_id}` (chỉ tác giả hoặc Admin/PM)
+- [x] Migration index: `comments.task_id`, `comments.author_id`, composite `tasks(status, priority)`
+- [x] Model `Attachment` + migration (có index `attachments.task_id`)
+- [x] Interface `StorageBackend` + `LocalStorage` + `S3Storage` (aioboto3), chọn qua `STORAGE_BACKEND`
+- [x] `POST /api/tasks/{task_id}/attachments` (`UploadFile`, đọc theo chunk, giới hạn size, whitelist content type, `storage_key` = UUID)
+- [x] `GET /api/tasks/{task_id}/attachments` (có pagination)
+- [x] `GET /api/attachments/{attachment_id}/download` (`StreamingResponse` + `Content-Disposition`)
+- [x] `DELETE /api/attachments/{attachment_id}` (người upload hoặc Admin/PM; xoá cả file trên storage)
 
 ## Ngày 7 — Testing, Background Jobs (Celery) & Caching
 

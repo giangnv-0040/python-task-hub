@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Query
 from fastapi import status as http_status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,14 +8,17 @@ from app.core.constants import (
     PERMISSION_RESPONSES,
     PROJECT_ASSIGNEE_NOT_FOUND_RESPONSE,
     PROJECT_NOT_FOUND_RESPONSE,
+    TASK_ASSIGNEE_NOT_FOUND_RESPONSE,
     TASK_NOT_FOUND_RESPONSE,
     UNAUTHORIZED_RESPONSE,
 )
 from app.core.deps import (
+    DbSession,
     get_current_active_user,
     get_project_detail,
     get_task_detail,
     verify_project_manager,
+    verify_task_manager,
 )
 from app.core.exceptions import ConflictException, NotFoundException
 from app.core.messages import ASSIGNEE_NOT_FOUND, TASK_ALREADY_BOOKMARKED
@@ -25,7 +30,7 @@ from app.database import get_db
 from app.models.project import Project
 from app.models.task import Task, TaskPriority, TaskStatus
 from app.models.user import User
-from app.schemas.task import TaskCreate, TaskRead
+from app.schemas.task import TaskAssign, TaskCreate, TaskRead
 
 # Router rieng cho task nested duoi project (khac router "/api/tasks" o duoi):
 # route nay thao tac chinh tren Task, chi nested URL duoi /projects vi ly do
@@ -112,3 +117,19 @@ async def bookmark_task(
 ) -> None:
     if not await crud_bookmark.create_bookmark(db, current_user.id, task.id):
         raise ConflictException(TASK_ALREADY_BOOKMARKED)
+
+
+@router.post(
+    "/{task_id}/assign",
+    response_model=TaskRead,
+    summary="Assign task cho 1 user (PM của project hoặc Admin)",
+    responses={**PERMISSION_RESPONSES, **TASK_ASSIGNEE_NOT_FOUND_RESPONSE},
+)
+async def assign_task(
+    data: TaskAssign,
+    task: Annotated[Task, Depends(verify_task_manager)],
+    db: DbSession,
+) -> TaskRead:
+    await _ensure_valid_assignee(db, data.assignee_id)
+    updated = await crud_task.assign_task(db, task, data.assignee_id)
+    return TaskRead.model_validate(updated)

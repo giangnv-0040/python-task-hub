@@ -31,3 +31,18 @@ class UnauthorizedException(AppException):
 class ForbiddenException(AppException):
     def __init__(self, message: str) -> None:
         super().__init__(status_code=403, message=message)
+
+
+class BadRequestException(AppException):
+    def __init__(self, message: str) -> None:
+        super().__init__(status_code=400, message=message)
+
+
+class PayloadTooLargeException(AppException):
+    def __init__(self, message: str) -> None:
+        super().__init__(status_code=413, message=message)
+
+
+class UnsupportedMediaTypeException(AppException):
+    def __init__(self, message: str) -> None:
+        super().__init__(status_code=415, message=message)

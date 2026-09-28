@@ -17,7 +17,7 @@ Hash password (passlib/bcrypt), JWT access token, `get_current_user` dependency,
 ## Ngày 5 — Phân quyền (Dependencies), Filtering, Pagination ✅ Hoàn thành
 Custom dependencies (`verify_admin_role`, `verify_project_manager`), filter theo status/priority, pagination `skip`/`limit`, bookmark task.
 
-## Ngày 6 — Nghiệp vụ phức tạp, Transaction & Xử lý file
+## Ngày 6 — Nghiệp vụ phức tạp, Transaction & Xử lý file ✅ Hoàn thành
 Assign task, comment, kiểm soát quyền chặt chẽ (chỉ tác giả comment hoặc Admin/PM được sửa/xoá). Đính kèm file cho task: `UploadFile` đọc theo chunk, validate size/type, `StreamingResponse` khi download, interface `StorageBackend` đổi được giữa local và S3 (MinIO). Bổ sung index cho các cột filter/FK còn thiếu.
 
 ## Ngày 7 — Testing, Background Jobs (Celery) & Caching
