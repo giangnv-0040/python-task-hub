@@ -11,7 +11,7 @@ Pydantic schemas (Create/Update/Response) cho Project & Tag, CRUD layer, full CR
 ## Ngày 3 — Quan hệ Model & Tối ưu hóa truy vấn ✅ Hoàn thành
 ForeignKey/relationship, many-to-many Task-Tag, eager loading (`joinedload`), nested Pydantic models, endpoint task theo project.
 
-## Ngày 4 — Xác thực người dùng bằng JWT & OAuth2
+## Ngày 4 — Xác thực người dùng bằng JWT & OAuth2 ✅ Hoàn thành
 Hash password (passlib/bcrypt), JWT access token, `get_current_user` dependency, register/login/me.
 
 ## Ngày 5 — Phân quyền (Dependencies), Filtering, Pagination

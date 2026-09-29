@@ -34,15 +34,15 @@ Tick `[x]` khi làm xong. Xem bối cảnh từng ngày tại [PLAN.md](PLAN.md)
 - [x] `POST /api/projects/{project_id}/tasks`
 - [x] `GET /api/users/{username}/profile`
 
-## Ngày 4 — Xác thực người dùng bằng JWT & OAuth2
+## Ngày 4 — Xác thực người dùng bằng JWT & OAuth2 ✅
 
-- [ ] Hash password với passlib/bcrypt
-- [ ] Tạo JWT access token có `expire`
-- [ ] Dependency `get_current_user`
-- [ ] `POST /api/users/register`
-- [ ] `POST /api/users/login`
-- [ ] `GET /api/users/me`
-- [ ] `PUT /api/users/me`
+- [x] Hash password với passlib/bcrypt
+- [x] Tạo JWT access token có `expire`
+- [x] Dependency `get_current_user`
+- [x] `POST /api/users/register`
+- [x] `POST /api/users/login`
+- [x] `GET /api/users/me`
+- [x] `PUT /api/users/me`
 
 ## Ngày 5 — Phân quyền (Dependencies), Filtering, Pagination
 

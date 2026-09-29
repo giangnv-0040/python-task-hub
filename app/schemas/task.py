@@ -3,6 +3,7 @@ from datetime import date, datetime
 from pydantic import Field, PositiveInt, field_validator
 
 from app.core.constants import MIN_LENGTH_DEFAULT, TASK_TITLE_MAX_LENGTH
+from app.core.messages import DUE_DATE_IN_PAST
 from app.models.task import TaskPriority, TaskStatus
 from app.schemas.base import BaseSchema
 from app.schemas.tag import TagRead
@@ -13,7 +14,7 @@ class _DueDateValidator:
     @classmethod
     def due_date_not_in_past(cls, value: date | None) -> date | None:
         if value is not None and value < date.today():
-            raise ValueError("due_date khong duoc o qua khu")
+            raise ValueError(DUE_DATE_IN_PAST)
         return value
 
 
