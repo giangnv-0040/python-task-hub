@@ -24,10 +24,6 @@ class TaskCreate(BaseSchema, _DueDateValidator):
     priority: TaskPriority = TaskPriority.MEDIUM
     due_date: date | None = None
     assignee_id: PositiveInt | None = None
-    # created_by: chua co auth o Ngay 3, tam nhan tu body. Se bo field nay va
-    # lay tu current_user khi tich hop auth+permission o Ngay 4/5 (xem skill
-    # python-review-pr, rule R20).
-    created_by: PositiveInt
 
 
 class TaskUpdate(BaseSchema, _DueDateValidator):

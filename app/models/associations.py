@@ -13,5 +13,7 @@ bookmarks = Table(
     "bookmarks",
     Base.metadata,
     Column("user_id", ForeignKey("users.id"), primary_key=True),
-    Column("task_id", ForeignKey("tasks.id"), primary_key=True),
+    # Bang trung gian khong co relationship tren Task nen ORM khong tu xoa row;
+    # ondelete=CASCADE de xoa task (vd khi xoa project) khong vuong FK (R10)
+    Column("task_id", ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True),
 )
