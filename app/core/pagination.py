@@ -12,8 +12,8 @@ class Pagination(BaseModel):
 
 
 def pagination_params(
-    skip: int = Query(default=DEFAULT_SKIP, ge=0),
-    limit: int = Query(default=DEFAULT_LIMIT, ge=1, le=MAX_LIMIT),
+    skip: Annotated[int, Query(ge=0)] = DEFAULT_SKIP,
+    limit: Annotated[int, Query(ge=1, le=MAX_LIMIT)] = DEFAULT_LIMIT,
 ) -> Pagination:
     return Pagination(skip=skip, limit=limit)
 

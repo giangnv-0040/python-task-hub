@@ -68,9 +68,9 @@ async def verify_project_manager(
     current_user: User = Depends(get_current_active_user),
     project: Project = Depends(get_project_detail),
 ) -> Project:
-    if current_user.role == UserRole.ADMIN:
-        return project
-    if current_user.role == UserRole.PM and project.manager_id == current_user.id:
+    if current_user.role == UserRole.ADMIN or (
+        current_user.role == UserRole.PM and project.manager_id == current_user.id
+    ):
         return project
     raise ForbiddenException(PERMISSION_DENIED)
 

@@ -56,9 +56,7 @@ async def list_project_tasks(
     project: Project = Depends(get_project_detail),
     db: AsyncSession = Depends(get_db),
 ) -> list[TaskRead]:
-    tasks = await crud_task.get_tasks_by_project(
-        db, project.id, skip=pagination.skip, limit=pagination.limit
-    )
+    tasks = await crud_task.get_tasks_by_project(db, project.id, pagination)
     return [TaskRead.model_validate(t) for t in tasks]
 
 
@@ -93,13 +91,7 @@ async def list_tasks(
     status: TaskStatus | None = Query(default=None),
     priority: TaskPriority | None = Query(default=None),
 ) -> list[TaskRead]:
-    tasks = await crud_task.get_tasks(
-        db,
-        status=status,
-        priority=priority,
-        skip=pagination.skip,
-        limit=pagination.limit,
-    )
+    tasks = await crud_task.get_tasks(db, pagination, status=status, priority=priority)
     return [TaskRead.model_validate(t) for t in tasks]
 
 
