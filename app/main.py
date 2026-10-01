@@ -1,10 +1,22 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.core.cache import get_redis
 from app.core.exceptions import AppException
 from app.routers import attachments, comments, projects, tags, tasks, users
 
-app = FastAPI(title="TaskHub API")
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    yield
+    # Dong connection pool Redis (cache) khi tat app
+    await get_redis().aclose()
+
+
+app = FastAPI(title="TaskHub API", lifespan=lifespan)
 
 app.include_router(users.router)
 app.include_router(projects.router)

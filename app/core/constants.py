@@ -64,6 +64,29 @@ S3_MIN_PART_SIZE = 5 * 1024 * 1024
 # Dependency ngoai (S3/MinIO) phai co timeout, khong de request treo vo han (R41)
 S3_CONNECT_TIMEOUT_SECONDS = 5
 S3_READ_TIMEOUT_SECONDS = 10
+# Redis (Ngay 7): cache /api/tags + timeout ket noi (khong de request treo vo
+# han neu Redis khong phan hoi, tuong tu S3_*_TIMEOUT_SECONDS o tren)
+TAGS_CACHE_KEY = "taskhub:tags:list"
+REDIS_CONNECT_TIMEOUT_SECONDS = 2
+REDIS_SOCKET_TIMEOUT_SECONDS = 2
+
+# Celery (Ngay 7)
+# Retry policy dung chung cho moi task gui mail (R43)
+CELERY_MAX_RETRIES = 3
+CELERY_RETRY_BACKOFF_SECONDS = 10
+CELERY_RETRY_BACKOFF_MAX_SECONDS = 300
+# Publish len broker chay trong request (sau commit): broker chet thi bo cuoc
+# nhanh, khong giu request lau (R41). Mac dinh kombu retry 3 lan + khong timeout.
+CELERY_PUBLISH_MAX_RETRIES = 1
+CELERY_BROKER_SOCKET_TIMEOUT_SECONDS = 2
+# Celery Beat: gio chay remind_due_tasks moi sang (theo CELERY_TIMEZONE)
+REMIND_DUE_TASKS_HOUR = 8
+REMIND_DUE_TASKS_MINUTE = 0
+# Task "sap den han": due_date tu hom nay den het N ngay toi (due_date la date,
+# khong co gio -> "trong 24h toi" = han hom nay hoac ngay mai)
+DUE_SOON_DAYS = 1
+SMTP_TIMEOUT_SECONDS = 10
+
 ALLOWED_UPLOAD_CONTENT_TYPES = frozenset(
     {
         "image/png",

@@ -56,6 +56,45 @@ docker start taskhub-postgres
 .venv\Scripts\python.exe -m uvicorn app.main:app --reload
 ```
 
+## Ngày 7: Redis, Celery, Mailpit
+
+**1. Bật Redis (broker/backend Celery + cache `/api/tags`) và Mailpit (SMTP giả lập khi dev):**
+```powershell
+docker run -d --name taskhub-redis -p 6379:6379 redis:7-alpine
+docker run -d --name taskhub-mailpit -e MP_SMTP_DISABLE_RDNS=true -p 1025:1025 -p 8025:8025 axllent/mailpit
+```
+Xem mail đã gửi tại http://127.0.0.1:8025.
+> `MP_SMTP_DISABLE_RDNS=true`: tắt reverse-DNS IP client, nếu không mỗi lần gửi mail từ host vào container Mailpit chờ ~10s.
+
+**2. Chạy Celery worker (xử lý `send_comment_notification`, `send_assign_notification`, `send_due_reminder`):**
+```powershell
+.venv\Scripts\python.exe -m celery -A app.worker.celery_app worker --loglevel=info --pool=solo
+```
+> `--pool=solo` cần thiết trên Windows (Celery không hỗ trợ tốt `prefork` trên Windows).
+
+**3. Chạy Celery Beat (job định kỳ `remind_due_tasks`, 8h sáng mỗi ngày theo `CELERY_TIMEZONE`):**
+```powershell
+.venv\Scripts\python.exe -m celery -A app.worker.celery_app beat --loglevel=info
+```
+
+## Chạy test (pytest)
+
+Cài thêm dependency cho test (chỉ dùng khi dev, không cần trong image chạy app):
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+```
+
+**1. Tạo DB test riêng (chạy 1 lần, khớp `TEST_DATABASE_URL`):**
+```powershell
+docker exec -it taskhub-postgres psql -U taskhub -d taskhub -c "CREATE DATABASE taskhub_test OWNER taskhub"
+```
+
+**2. Chạy toàn bộ test suite** (không cần Redis/Celery đang chạy — `.delay()` được mock, Redis cache được thay bằng fake trong `tests/conftest.py`):
+```powershell
+.venv\Scripts\python.exe -m pytest
+```
+Test `test_mail_is_delivered_to_mailpit` gửi mail thật qua SMTP tới Mailpit rồi đọc lại qua API — tự skip nếu Mailpit không chạy.
+
 ## Test / Verify trên local
 
 - http://127.0.0.1:8000/health → phải trả về `{"status":"ok"}`

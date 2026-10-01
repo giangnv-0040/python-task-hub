@@ -15,3 +15,5 @@ python-jose[cryptography]>=3.3
 python-multipart>=0.0.9
 aiofiles>=23.2
 aioboto3>=13.0
+redis>=5.0
+celery[redis]>=5.4
