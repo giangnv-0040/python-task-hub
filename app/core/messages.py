@@ -19,3 +19,11 @@ ATTACHMENT_FILE_MISSING = "Attachment file is missing from storage"
 FILENAME_REQUIRED = "Uploaded file must have a filename"
 FILE_TOO_LARGE = "File exceeds the maximum upload size"
 UNSUPPORTED_FILE_TYPE = "File type is not allowed"
+
+# Email thong bao (Ngay 7, app/worker/tasks.py) - dung str.format()
+EMAIL_COMMENT_SUBJECT = "[TaskHub] New comment on task '{task_title}'"
+EMAIL_COMMENT_BODY = "{author} commented on task '{task_title}':\n\n{content}"
+EMAIL_ASSIGN_SUBJECT = "[TaskHub] You were assigned to task '{task_title}'"
+EMAIL_ASSIGN_BODY = "{assigner} assigned task '{task_title}' to you."
+EMAIL_DUE_REMINDER_SUBJECT = "[TaskHub] Task '{task_title}' is due soon"
+EMAIL_DUE_REMINDER_BODY = "Task '{task_title}' is due on {due_date}."

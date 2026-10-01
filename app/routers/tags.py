@@ -1,39 +1,47 @@
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Annotated
 
+from fastapi import APIRouter, Depends, status
+
+from app.core.cache import RedisDep
 from app.core.constants import (
     ADMIN_ONLY_RESPONSES,
     TAG_NOT_FOUND_RESPONSE,
     UNAUTHORIZED_RESPONSE,
 )
-from app.core.deps import get_current_active_user, verify_admin_role
+from app.core.deps import DbSession, get_current_active_user, verify_admin_role
 from app.core.exceptions import NotFoundException
 from app.core.messages import TAG_NOT_FOUND
+from app.core.pagination import PaginationDep
 from app.crud import tag as crud_tag
-from app.database import get_db
 from app.models.tag import Tag
+from app.schemas.base import Page
 from app.schemas.tag import TagCreate, TagRead, TagUpdate
+from app.services import tag as tag_service
 
 router = APIRouter(prefix="/tags", tags=["tags"])
 
 
-async def get_tag_detail(tag_id: int, db: AsyncSession = Depends(get_db)) -> Tag:
+async def get_tag_detail(tag_id: int, db: DbSession) -> Tag:
     tag = await crud_tag.get_tag(db, tag_id)
     if tag is None:
         raise NotFoundException(TAG_NOT_FOUND)
     return tag
 
 
+TagDetailDep = Annotated[Tag, Depends(get_tag_detail)]
+
+
 @router.get(
     "",
-    response_model=list[TagRead],
-    summary="Danh sách tag",
+    response_model=Page[TagRead],
+    summary="Danh sách tag (phân trang, cache Redis)",
     responses=UNAUTHORIZED_RESPONSE,
     dependencies=[Depends(get_current_active_user)],
 )
-async def list_tags(db: AsyncSession = Depends(get_db)) -> list[TagRead]:
-    tags = await crud_tag.get_tags(db)
-    return [TagRead.model_validate(t) for t in tags]
+async def list_tags(
+    pagination: PaginationDep, db: DbSession, redis: RedisDep
+) -> Page[TagRead]:
+    return await tag_service.list_tags(db, redis, pagination)
 
 
 @router.post(
@@ -44,8 +52,8 @@ async def list_tags(db: AsyncSession = Depends(get_db)) -> list[TagRead]:
     responses=ADMIN_ONLY_RESPONSES,
     dependencies=[Depends(verify_admin_role)],
 )
-async def create_tag(data: TagCreate, db: AsyncSession = Depends(get_db)) -> TagRead:
-    tag = await crud_tag.create_tag(db, data)
+async def create_tag(data: TagCreate, db: DbSession, redis: RedisDep) -> TagRead:
+    tag = await tag_service.create_tag(db, redis, data)
     return TagRead.model_validate(tag)
 
 
@@ -60,10 +68,11 @@ async def create_tag(data: TagCreate, db: AsyncSession = Depends(get_db)) -> Tag
 )
 async def update_tag(
     data: TagUpdate,
-    tag: Tag = Depends(get_tag_detail),
-    db: AsyncSession = Depends(get_db),
+    tag: TagDetailDep,
+    db: DbSession,
+    redis: RedisDep,
 ) -> TagRead:
-    updated = await crud_tag.update_tag(db, tag, data)
+    updated = await tag_service.update_tag(db, redis, tag, data)
     return TagRead.model_validate(updated)
 
 
@@ -74,7 +83,5 @@ async def update_tag(
     responses={**ADMIN_ONLY_RESPONSES, **TAG_NOT_FOUND_RESPONSE},
     dependencies=[Depends(verify_admin_role)],
 )
-async def delete_tag(
-    tag: Tag = Depends(get_tag_detail), db: AsyncSession = Depends(get_db)
-) -> None:
-    await crud_tag.delete_tag(db, tag)
+async def delete_tag(tag: TagDetailDep, db: DbSession, redis: RedisDep) -> None:
+    await tag_service.delete_tag(db, redis, tag)

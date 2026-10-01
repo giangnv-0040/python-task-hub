@@ -20,8 +20,8 @@ Custom dependencies (`verify_admin_role`, `verify_project_manager`), filter theo
 ## Ngày 6 — Nghiệp vụ phức tạp, Transaction & Xử lý file ✅ Hoàn thành
 Assign task, comment, kiểm soát quyền chặt chẽ (chỉ tác giả comment hoặc Admin/PM được sửa/xoá). Đính kèm file cho task: `UploadFile` đọc theo chunk, validate size/type, `StreamingResponse` khi download, interface `StorageBackend` đổi được giữa local và S3 (MinIO). Bổ sung index cho các cột filter/FK còn thiếu.
 
-## Ngày 7 — Testing, Background Jobs (Celery) & Caching
-Unit test + e2e test với pytest, pytest-asyncio, httpx `AsyncClient` (DB test riêng, override dependency). Celery + Redis gửi email khi có comment/assign (Mailpit khi dev), Celery Beat chạy job nhắc task sắp đến hạn. Cache Redis cho danh sách tag.
+## Ngày 7 — Testing, Background Jobs (Celery) & Caching ✅ Hoàn thành
+Unit test + e2e test với pytest, pytest-asyncio, httpx `AsyncClient` (DB test riêng, override dependency, mock `.delay()`). Celery + Redis gửi email khi có comment/assign (Mailpit khi dev, có retry), Celery Beat chạy job `remind_due_tasks` mỗi sáng. Cache Redis cho `GET /api/v1/tags` (invalidate khi create/update/delete), fail-open nếu Redis lỗi.
 
 ## Ngày 8 — Tổng kết, Debug, Seeder & Build hoàn chỉnh
 CORS, logging tập trung + middleware log request, debug bằng debugpy (attach từ VSCode vào container), CLI seeder bằng Typer, Dockerfile + docker-compose (App + PostgreSQL + Redis + Celery worker/beat + Mailpit + MinIO).

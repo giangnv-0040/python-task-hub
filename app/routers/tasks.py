@@ -13,10 +13,11 @@ from app.core.constants import (
     UNAUTHORIZED_RESPONSE,
 )
 from app.core.deps import (
+    CurrentUser,
     DbSession,
+    TaskDetailDep,
     get_current_active_user,
     get_project_detail,
-    get_task_detail,
     verify_project_manager,
     verify_task_manager,
 )
@@ -26,11 +27,11 @@ from app.core.pagination import PaginationDep
 from app.crud import bookmark as crud_bookmark
 from app.crud import task as crud_task
 from app.crud import user as crud_user
-from app.database import get_db
 from app.models.project import Project
 from app.models.task import Task, TaskPriority, TaskStatus
-from app.models.user import User
+from app.schemas.base import Page
 from app.schemas.task import TaskAssign, TaskCreate, TaskRead
+from app.services import task as task_service
 
 # Router rieng cho task nested duoi project (khac router "/api/tasks" o duoi):
 # route nay thao tac chinh tren Task, chi nested URL duoi /projects vi ly do
@@ -51,18 +52,18 @@ async def _ensure_valid_assignee(db: AsyncSession, assignee_id: int | None) -> N
 
 @project_tasks_router.get(
     "",
-    response_model=list[TaskRead],
+    response_model=Page[TaskRead],
     summary="Danh sách task trong project (phân trang)",
     responses={**UNAUTHORIZED_RESPONSE, **PROJECT_NOT_FOUND_RESPONSE},
     dependencies=[Depends(get_current_active_user)],
 )
 async def list_project_tasks(
     pagination: PaginationDep,
-    project: Project = Depends(get_project_detail),
-    db: AsyncSession = Depends(get_db),
-) -> list[TaskRead]:
-    tasks = await crud_task.get_tasks_by_project(db, project.id, pagination)
-    return [TaskRead.model_validate(t) for t in tasks]
+    project: Annotated[Project, Depends(get_project_detail)],
+    db: DbSession,
+) -> Page[TaskRead]:
+    tasks, total = await crud_task.get_tasks_by_project(db, project.id, pagination)
+    return Page(items=[TaskRead.model_validate(t) for t in tasks], total=total)
 
 
 @project_tasks_router.post(
@@ -74,30 +75,32 @@ async def list_project_tasks(
 )
 async def create_project_task(
     data: TaskCreate,
-    project: Project = Depends(verify_project_manager),
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
+    project: Annotated[Project, Depends(verify_project_manager)],
+    current_user: CurrentUser,
+    db: DbSession,
 ) -> TaskRead:
     await _ensure_valid_assignee(db, data.assignee_id)
-    task = await crud_task.create_task(db, project.id, data, created_by=current_user.id)
+    task = await task_service.create_task(db, project.id, data, created_by=current_user.id)
     return TaskRead.model_validate(task)
 
 
 @router.get(
     "",
-    response_model=list[TaskRead],
+    response_model=Page[TaskRead],
     summary="Danh sách task (lọc theo status/priority, phân trang)",
     responses=UNAUTHORIZED_RESPONSE,
     dependencies=[Depends(get_current_active_user)],
 )
 async def list_tasks(
     pagination: PaginationDep,
-    db: AsyncSession = Depends(get_db),
-    status: TaskStatus | None = Query(default=None),
-    priority: TaskPriority | None = Query(default=None),
-) -> list[TaskRead]:
-    tasks = await crud_task.get_tasks(db, pagination, status=status, priority=priority)
-    return [TaskRead.model_validate(t) for t in tasks]
+    db: DbSession,
+    status: Annotated[TaskStatus | None, Query()] = None,
+    priority: Annotated[TaskPriority | None, Query()] = None,
+) -> Page[TaskRead]:
+    tasks, total = await crud_task.get_tasks(
+        db, pagination, status=status, priority=priority
+    )
+    return Page(items=[TaskRead.model_validate(t) for t in tasks], total=total)
 
 
 @router.post(
@@ -111,9 +114,9 @@ async def list_tasks(
     },
 )
 async def bookmark_task(
-    current_user: User = Depends(get_current_active_user),
-    task: Task = Depends(get_task_detail),
-    db: AsyncSession = Depends(get_db),
+    current_user: CurrentUser,
+    task: TaskDetailDep,
+    db: DbSession,
 ) -> None:
     if not await crud_bookmark.create_bookmark(db, current_user.id, task.id):
         raise ConflictException(TASK_ALREADY_BOOKMARKED)
@@ -128,8 +131,11 @@ async def bookmark_task(
 async def assign_task(
     data: TaskAssign,
     task: Annotated[Task, Depends(verify_task_manager)],
+    current_user: CurrentUser,
     db: DbSession,
 ) -> TaskRead:
     await _ensure_valid_assignee(db, data.assignee_id)
-    updated = await crud_task.assign_task(db, task, data.assignee_id)
+    updated = await task_service.assign_task(
+        db, task, data.assignee_id, assigned_by=current_user.id
+    )
     return TaskRead.model_validate(updated)
