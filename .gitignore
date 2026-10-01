@@ -13,3 +13,6 @@ venv/
 
 # File dinh kem khi STORAGE_BACKEND=local
 /storage/
+
+# File lich cua Celery Beat
+celerybeat-schedule*
