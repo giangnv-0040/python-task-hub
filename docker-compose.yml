@@ -1,0 +1,148 @@
+# Stack dev day du (Ngay 8): docker compose up --build
+# Secret (SECRET_KEY...) doc tu .env (copy tu .env.example); dia chi cac service
+# ben duoi ghi de gia tri localhost trong .env bang ten service trong network.
+
+x-app-env: &app-env
+  DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-taskhub}:${POSTGRES_PASSWORD:-taskhub}@postgres:5432/${POSTGRES_DB:-taskhub}
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  SMTP_HOST: mailpit
+  SMTP_PORT: "1025"
+  STORAGE_BACKEND: s3
+  S3_ENDPOINT_URL: http://minio:9000
+  S3_BUCKET: ${S3_BUCKET:-taskhub-attachments}
+  S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+  S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+
+x-app: &app
+  build: .
+  image: taskhub-api
+  env_file: .env
+  environment:
+    <<: *app-env
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-taskhub}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taskhub}
+      POSTGRES_DB: ${POSTGRES_DB:-taskhub}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit
+    environment:
+      MP_SMTP_DISABLE_RDNS: "true"
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+    restart: unless-stopped
+
+  # MinIO ngung phat hanh image cong dong (minio/minio, minio/mc tren Docker Hub
+  # va quay.io deu khong con pull duoc) -> dung ban build cong dong pgsty/minio,
+  # cung binary MinIO va co san mc
+  minio:
+    image: &minio-image pgsty/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio-data:/data
+    ports:
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # Chay 1 lan: tao bucket cho file dinh kem (S3Storage khong tu tao bucket)
+  minio-init:
+    image: *minio-image
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}
+      && mc mb --ignore-existing local/$${S3_BUCKET}"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      S3_BUCKET: ${S3_BUCKET:-taskhub-attachments}
+
+  # Chay 1 lan truoc app/worker: tach rieng de scale app nhieu instance khong
+  # chay migration dong thoi
+  migrate:
+    <<: *app
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    <<: *app
+    environment:
+      <<: *app-env
+      # debugpy: DEBUGPY=1 docker compose up -> attach "TaskHub: attach (docker)"
+      DEBUGPY: ${DEBUGPY:-0}
+      DEBUGPY_HOST: 0.0.0.0
+    ports:
+      - "${APP_PORT:-8000}:8000"
+      # Chi bind localhost: cong debug cho phep chay code tuy y trong container
+      - "127.0.0.1:${DEBUGPY_PORT:-5678}:5678"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  worker:
+    <<: *app
+    command: ["celery", "-A", "app.worker.celery_app", "worker", "--concurrency=2"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+
+  beat:
+    <<: *app
+    # File lich cua beat ghi vao /tmp (user khong phai root khong ghi duoc /app)
+    command: ["celery", "-A", "app.worker.celery_app", "beat", "--schedule=/tmp/celerybeat-schedule"]
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  minio-data:

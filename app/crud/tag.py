@@ -9,6 +9,11 @@ async def get_tag(db: AsyncSession, tag_id: int) -> Tag | None:
     return await db.get(Tag, tag_id)
 
 
+async def get_tag_by_name(db: AsyncSession, name: str) -> Tag | None:
+    result = await db.execute(select(Tag).where(Tag.name == name))
+    return result.scalar_one_or_none()
+
+
 async def get_tags(db: AsyncSession) -> list[Tag]:
     result = await db.execute(select(Tag))
     return list(result.scalars().all())

@@ -40,6 +40,11 @@ async def get_tasks_by_project(
     return list(result.scalars().all())
 
 
+async def get_task_titles_by_project(db: AsyncSession, project_id: int) -> set[str]:
+    result = await db.execute(select(Task.title).where(Task.project_id == project_id))
+    return set(result.scalars().all())
+
+
 async def create_task(
     db: AsyncSession, project_id: int, data: TaskCreate, created_by: int
 ) -> Task:

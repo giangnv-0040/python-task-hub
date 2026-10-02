@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Attach vao app trong docker compose (DEBUGPY=1, port 5678)
+      "name": "TaskHub: attach (docker)",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": { "host": "localhost", "port": 5678 },
+      "pathMappings": [{ "localRoot": "${workspaceFolder}", "remoteRoot": "/app" }],
+      "justMyCode": true
+    },
+    {
+      // Attach vao uvicorn chay local voi DEBUGPY=1 trong .env
+      "name": "TaskHub: attach (local)",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": { "host": "127.0.0.1", "port": 5678 },
+      "justMyCode": true
+    }
+  ]
+}

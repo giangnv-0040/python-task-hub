@@ -45,5 +45,18 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = False
     mail_from: str = "taskhub@example.com"
 
+    # Ngay 8: CORS, logging, debugpy
+    # JSON list trong env, vd CORS_ORIGINS=["http://localhost:3000"]; rong ->
+    # khong origin nao duoc goi API tu trinh duyet
+    cors_origins: list[str] = []
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+    # debugpy chi bat khi DEBUGPY=1. Chay local giu 127.0.0.1 (khong mo port
+    # debug ra mang LAN); trong container phai la 0.0.0.0 (docker-compose.yml)
+    debugpy: bool = False
+    debugpy_host: str = "127.0.0.1"
+    debugpy_port: int = 5678
+    # Dung app cho toi khi VSCode attach (debug code chay luc startup)
+    debugpy_wait_for_client: bool = False
+
 
 settings = Settings()

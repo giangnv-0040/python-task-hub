@@ -9,6 +9,14 @@ async def get_project(db: AsyncSession, project_id: int) -> Project | None:
     return await db.get(Project, project_id)
 
 
+async def get_project_by_name(db: AsyncSession, name: str) -> Project | None:
+    # projects.name khong unique -> lay ban ghi dau tien theo id cho on dinh
+    result = await db.execute(
+        select(Project).where(Project.name == name).order_by(Project.id).limit(1)
+    )
+    return result.scalar_one_or_none()
+
+
 async def get_projects(db: AsyncSession) -> list[Project]:
     result = await db.execute(select(Project))
     return list(result.scalars().all())
