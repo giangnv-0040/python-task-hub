@@ -23,7 +23,7 @@ Assign task, comment, kiểm soát quyền chặt chẽ (chỉ tác giả commen
 ## Ngày 7 — Testing, Background Jobs (Celery) & Caching ✅ Hoàn thành
 Unit test + e2e test với pytest, pytest-asyncio, httpx `AsyncClient` (DB test riêng, override dependency, mock `.delay()`). Celery + Redis gửi email khi có comment/assign (Mailpit khi dev, có retry), Celery Beat chạy job `remind_due_tasks` mỗi sáng. Cache Redis cho `GET /api/tags` (invalidate khi create/update/delete), fail-open nếu Redis lỗi.
 
-## Ngày 8 — Tổng kết, Debug, Seeder & Build hoàn chỉnh
+## Ngày 8 — Tổng kết, Debug, Seeder & Build hoàn chỉnh ✅ Hoàn thành
 CORS, logging tập trung + middleware log request, debug bằng debugpy (attach từ VSCode vào container), CLI seeder bằng Typer, Dockerfile + docker-compose (App + PostgreSQL + Redis + Celery worker/beat + Mailpit + MinIO).
 
 ## Quyết định đã chốt

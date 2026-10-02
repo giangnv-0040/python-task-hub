@@ -87,6 +87,41 @@ REMIND_DUE_TASKS_MINUTE = 0
 DUE_SOON_DAYS = 1
 SMTP_TIMEOUT_SECONDS = 10
 
+# CORS (Ngay 8): FE goi API bang header Authorization (Bearer), khong dung
+# cookie -> khong can allow_credentials. Expose Content-Disposition de FE doc
+# duoc ten file khi download attachment.
+CORS_ALLOW_METHODS = ("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+CORS_ALLOW_HEADERS = ("Authorization", "Content-Type")
+CORS_EXPOSE_HEADERS = ("Content-Disposition",)
+
+# Logging (Ngay 8, app/core/logging.py)
+LOG_FORMAT = "%(asctime)s %(levelname)s [%(name)s] %(message)s"
+LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+# Docker healthcheck goi /health moi vai giay -> khong log tung request
+REQUEST_LOG_SKIP_PATHS = frozenset({"/health"})
+
+# CLI seeder (Ngay 8, app/cli.py): username/ten co dinh theo so thu tu -> chay
+# lai seed tim thay ban ghi cu thay vi tao trung
+SEED_DEFAULT_USERS = 10
+SEED_DEFAULT_PROJECTS = 3
+SEED_DEFAULT_TASKS_PER_PROJECT = 10
+# Password chung cua moi user seed - chi la du lieu dev/demo, doi qua --password
+SEED_DEFAULT_PASSWORD = "Password123"
+SEED_MEMBER_USERNAME = "seed_member_{index:03d}"
+SEED_PM_USERNAME = "seed_pm_{index:03d}"
+SEED_EMAIL_DOMAIN = "taskhub.dev"
+SEED_PROJECT_NAME = "Seed Project {index:03d}"
+SEED_TASK_TITLE = "Seed task {index:03d}"
+# due_date cua task seed rai deu tu hom nay toi N ngay sau
+SEED_DUE_DATE_SPREAD_DAYS = 14
+SEED_TAGS = (
+    ("bug", "red"),
+    ("feature", "green"),
+    ("backend", "blue"),
+    ("frontend", "purple"),
+    ("urgent", "orange"),
+)
+
 ALLOWED_UPLOAD_CONTENT_TYPES = frozenset(
     {
         "image/png",

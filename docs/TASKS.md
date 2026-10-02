@@ -80,14 +80,14 @@ Tick `[x]` khi làm xong. Xem bối cảnh từng ngày tại [PLAN.md](PLAN.md)
 - [x] Test Celery task (chạy eager / mock `.delay()`), kiểm tra mail qua Mailpit
 - [x] Cache Redis cho `GET /api/tags`, invalidate khi có thay đổi
 
-## Ngày 8 — Tổng kết, Debug, Seeder & Build hoàn chỉnh
+## Ngày 8 — Tổng kết, Debug, Seeder & Build hoàn chỉnh ✅
 
-- [ ] CORS: cấu hình `CORSMiddleware`
-- [ ] Logging: `app/core/logging.py` (format, `LOG_LEVEL` từ env), dùng `logging.getLogger(__name__)` trong code
-- [ ] Middleware log request (method, path, status, thời gian xử lý) + exception handler log lỗi 500
-- [ ] debugpy: bật qua `DEBUGPY=1`, expose port `5678`, thêm `.vscode/launch.json` để attach
-- [ ] CLI Typer `app/cli.py`: lệnh `seed` (`--users`, `--projects`, `--tasks-per-project`), `create-admin`, `reset-db`
-- [ ] Seeder idempotent (chạy lại không tạo trùng)
-- [ ] `Dockerfile`
-- [ ] `docker-compose.yml` (App + PostgreSQL + Redis + Celery worker + Celery beat + Mailpit + MinIO)
-- [ ] `docker compose up` chạy được toàn bộ stack
+- [x] CORS: cấu hình `CORSMiddleware`
+- [x] Logging: `app/core/logging.py` (format, `LOG_LEVEL` từ env), dùng `logging.getLogger(__name__)` trong code
+- [x] Middleware log request (method, path, status, thời gian xử lý) + exception handler log lỗi 500
+- [x] debugpy: bật qua `DEBUGPY=1`, expose port `5678`, thêm `.vscode/launch.json` để attach
+- [x] CLI Typer `app/cli.py`: lệnh `seed` (`--users`, `--projects`, `--tasks-per-project`), `create-admin`, `reset-db`
+- [x] Seeder idempotent (chạy lại không tạo trùng)
+- [x] `Dockerfile`
+- [x] `docker-compose.yml` (App + PostgreSQL + Redis + Celery worker + Celery beat + Mailpit + MinIO)
+- [x] `docker compose up` chạy được toàn bộ stack

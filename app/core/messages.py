@@ -19,6 +19,7 @@ ATTACHMENT_FILE_MISSING = "Attachment file is missing from storage"
 FILENAME_REQUIRED = "Uploaded file must have a filename"
 FILE_TOO_LARGE = "File exceeds the maximum upload size"
 UNSUPPORTED_FILE_TYPE = "File type is not allowed"
+INTERNAL_SERVER_ERROR = "Internal server error"
 
 # Email thong bao (Ngay 7, app/worker/tasks.py) - dung str.format()
 EMAIL_COMMENT_SUBJECT = "[TaskHub] New comment on task '{task_title}'"
@@ -27,3 +28,13 @@ EMAIL_ASSIGN_SUBJECT = "[TaskHub] You were assigned to task '{task_title}'"
 EMAIL_ASSIGN_BODY = "{assigner} assigned task '{task_title}' to you."
 EMAIL_DUE_REMINDER_SUBJECT = "[TaskHub] Task '{task_title}' is due soon"
 EMAIL_DUE_REMINDER_BODY = "Task '{task_title}' is due on {due_date}."
+
+# CLI (Ngay 8, app/cli.py)
+CLI_SEED_DONE = (
+    "Seed done: {users} users, {projects} projects, {tasks} tasks, {tags} tags created"
+)
+CLI_ADMIN_CREATED = "Admin '{username}' created"
+CLI_ADMIN_ALREADY_EXISTS = "Admin '{username}' already exists, nothing to do"
+CLI_USERNAME_TAKEN_BY_NON_ADMIN = "Username '{username}' already exists and is not an admin"
+CLI_RESET_DB_CONFIRM = "Drop ALL data in {database} and re-run migrations?"
+CLI_RESET_DB_DONE = "Database reset to latest migration"

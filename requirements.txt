@@ -17,3 +17,6 @@ aiofiles>=23.2
 aioboto3>=13.0
 redis>=5.0
 celery[redis]>=5.4
+# Ngay 8: CLI seeder/quan tri (app/cli.py) + remote debug (chi bat khi DEBUGPY=1)
+typer>=0.12
+debugpy>=1.8
