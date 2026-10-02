@@ -8,7 +8,7 @@ Task Management API xây dựng bằng FastAPI, theo lộ trình tutorial-driven
 
 ## Tech stack
 
-FastAPI · SQLAlchemy 2.x (async) · Alembic · Pydantic v2 · PostgreSQL 16 · Redis · Docker
+FastAPI · SQLAlchemy 2.x (async) · Alembic · Pydantic v2 · PostgreSQL 16 · Redis · Celery · Typer · Docker
 
 ## Yêu cầu môi trường
 
@@ -76,6 +76,51 @@ Xem mail đã gửi tại http://127.0.0.1:8025.
 ```powershell
 .venv\Scripts\python.exe -m celery -A app.worker.celery_app beat --loglevel=info
 ```
+
+## Ngày 8: Docker compose, CLI seeder, debug
+
+### Chạy toàn bộ stack bằng Docker
+
+App + PostgreSQL + Redis + Celery worker + Celery beat + Mailpit + MinIO:
+```powershell
+copy .env.example .env   # neu chua co; compose doc SECRET_KEY... tu day
+docker compose up -d --build
+```
+- API: http://127.0.0.1:8000/docs · Mailpit: http://127.0.0.1:8025 · MinIO console: http://127.0.0.1:9001 (`minioadmin`/`minioadmin`)
+- Thứ tự khởi động: `migrate` (chạy `alembic upgrade head` 1 lần) và `minio-init` (tạo bucket) xong mới tới `app`/`worker`.
+- File đính kèm lưu trên MinIO (`STORAGE_BACKEND=s3`). Postgres/Redis không mở port ra host (chỉ dùng trong network compose), dữ liệu nằm ở volume `postgres-data`, `minio-data`.
+- Trùng port với container chạy tay ở các ngày trước (`taskhub-mailpit` dùng 8025) hoặc uvicorn local (8000): `docker stop taskhub-mailpit`, hoặc đổi port host qua biến `APP_PORT`, `MAILPIT_UI_PORT`, `MINIO_CONSOLE_PORT`, `DEBUGPY_PORT`.
+- Dừng: `docker compose down` (thêm `-v` để xoá luôn dữ liệu).
+
+> Image MinIO chính thức (`minio/minio`, `minio/mc`) đã bị gỡ khỏi Docker Hub/quay.io, compose dùng bản build cộng đồng `pgsty/minio` (cùng binary MinIO, có sẵn `mc`).
+
+### CLI (Typer)
+
+```powershell
+# local
+.venv\Scripts\python.exe -m app.cli --help
+# trong docker
+docker compose exec app python -m app.cli --help
+```
+
+| Lệnh | Mô tả |
+|---|---|
+| `seed --users 10 --projects 3 --tasks-per-project 10 [--password ...]` | Tạo dữ liệu mẫu: N member (`seed_member_001`...), mỗi project 1 PM riêng (`seed_pm_001`...) làm manager, task assign xoay vòng cho member, 5 tag mẫu. Password mặc định `Password123`. **Idempotent**: chạy lại chỉ tạo phần còn thiếu, tăng số lượng thì tạo thêm, giảm thì không xoá. Không gửi mail assign. |
+| `create-admin --username admin --email admin@taskhub.dev` | Tạo tài khoản ADMIN (hỏi password ẩn nếu không truyền `--password`). Chạy lại với admin đã có thì không làm gì; username/email đang thuộc user thường thì báo lỗi, không tự nâng quyền. |
+| `reset-db [--yes]` | **Xoá toàn bộ dữ liệu** (`DROP SCHEMA public`) rồi chạy lại migration từ đầu, xoá cache tag. Chỉ dùng khi dev. |
+
+### Debug bằng debugpy (VSCode)
+
+- Trong docker: `$env:DEBUGPY=1; docker compose up -d app` → VSCode chọn **Run and Debug → "TaskHub: attach (docker)"** (port 5678, chỉ bind `127.0.0.1`).
+- Local: đặt `DEBUGPY=true` trong `.env`, chạy uvicorn như bình thường → **"TaskHub: attach (local)"**.
+- Cần dừng ngay từ lúc startup thì đặt thêm `DEBUGPY_WAIT_FOR_CLIENT=true` (app chờ tới khi VSCode attach).
+- Không bật `DEBUGPY` ở production (cổng debug cho phép chạy code tuỳ ý), và không dùng cùng `uvicorn --workers N` (các worker tranh nhau port).
+
+### Logging & CORS
+
+- Log format chung `thời gian LEVEL [logger] message`, mức log theo `LOG_LEVEL`; áp dụng cho API, Celery worker/beat và CLI.
+- Mỗi request log 1 dòng `METHOD path -> status (x ms)` (4xx = WARNING, 5xx = ERROR; bỏ qua `/health`). Lỗi chưa được xử lý log kèm stacktrace và trả `500 {"error": {"message": "Internal server error"}}`.
+- `CORS_ORIGINS`: JSON list origin của FE được gọi API từ trình duyệt, vd `["http://localhost:3000"]`.
 
 ## Chạy test (pytest)
 

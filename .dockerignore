@@ -1,0 +1,15 @@
+.git
+.venv
+venv
+.env
+.env.*
+!.env.example
+.claude
+.vscode
+.pytest_cache
+**/__pycache__
+*.pyc
+storage
+celerybeat-schedule*
+tests
+docs

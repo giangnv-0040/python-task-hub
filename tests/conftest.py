@@ -73,6 +73,9 @@ class FakeRedis:
         self.store.pop(key, None)
         self.ttl.pop(key, None)
 
+    async def aclose(self) -> None:
+        pass
+
 
 @pytest_asyncio.fixture(scope="session")
 async def engine() -> AsyncGenerator[AsyncEngine, None]:

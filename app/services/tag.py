@@ -55,7 +55,7 @@ async def _write_cache(redis: Redis, pagination: Pagination, page: TagPage) -> N
         logger.warning("Redis unavailable, skip caching tags", exc_info=True)
 
 
-async def _invalidate_cache(redis: Redis) -> None:
+async def invalidate_tags_cache(redis: Redis) -> None:
     # Goi sau commit: loi o day khong duoc lam hong response da thanh cong (R32);
     # cache cu se tu het han sau TAG_CACHE_TTL_SECONDS
     try:
@@ -76,16 +76,16 @@ async def list_tags(db: AsyncSession, redis: Redis, pagination: Pagination) -> T
 
 async def create_tag(db: AsyncSession, redis: Redis, data: TagCreate) -> Tag:
     tag = await crud_tag.create_tag(db, data)
-    await _invalidate_cache(redis)
+    await invalidate_tags_cache(redis)
     return tag
 
 
 async def update_tag(db: AsyncSession, redis: Redis, tag: Tag, data: TagUpdate) -> Tag:
     updated = await crud_tag.update_tag(db, tag, data)
-    await _invalidate_cache(redis)
+    await invalidate_tags_cache(redis)
     return updated
 
 
 async def delete_tag(db: AsyncSession, redis: Redis, tag: Tag) -> None:
     await crud_tag.delete_tag(db, tag)
-    await _invalidate_cache(redis)
+    await invalidate_tags_cache(redis)

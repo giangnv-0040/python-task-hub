@@ -1,3 +1,6 @@
+from fastapi.responses import JSONResponse
+
+
 class AppException(Exception):
     """Base exception cho các lỗi nghiệp vụ, trả về response format chung."""
 
@@ -46,3 +49,13 @@ class PayloadTooLargeException(AppException):
 class UnsupportedMediaTypeException(AppException):
     def __init__(self, message: str) -> None:
         super().__init__(status_code=415, message=message)
+
+
+def error_response(
+    status_code: int, message: str, headers: dict[str, str] | None = None
+) -> JSONResponse:
+    """Format loi chung cua toan API (R1): AppException handler va loi 500
+    (RequestLoggingMiddleware) deu tra qua day."""
+    return JSONResponse(
+        status_code=status_code, content={"error": {"message": message}}, headers=headers
+    )
