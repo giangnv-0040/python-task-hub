@@ -8,6 +8,9 @@ from app.core.constants import DEFAULT_MAX_UPLOAD_SIZE
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
+    # Prefix + version cho toan bo API, doi version chi can sua 1 cho (vd /api/v2)
+    api_prefix: str = "/api/v1"
+
     database_url: str
     secret_key: str
     jwt_algorithm: str = "HS256"

@@ -14,7 +14,7 @@ from app.database import get_db
 from app.models.tag import Tag
 from app.schemas.tag import TagCreate, TagRead, TagUpdate
 
-router = APIRouter(prefix="/api/tags", tags=["tags"])
+router = APIRouter(prefix="/tags", tags=["tags"])
 
 
 async def get_tag_detail(tag_id: int, db: AsyncSession = Depends(get_db)) -> Tag:
