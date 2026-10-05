@@ -35,9 +35,9 @@ from app.schemas.task import TaskAssign, TaskCreate, TaskRead
 # Router rieng cho task nested duoi project (khac router "/api/tasks" o duoi):
 # route nay thao tac chinh tren Task, chi nested URL duoi /projects vi ly do
 # path, nen van dat trong file tasks.py (R18) thay vi projects.py.
-project_tasks_router = APIRouter(prefix="/api/projects/{project_id}/tasks", tags=["tasks"])
+project_tasks_router = APIRouter(prefix="/projects/{project_id}/tasks", tags=["tasks"])
 
-router = APIRouter(prefix="/api/tasks", tags=["tasks"])
+router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
 async def _ensure_valid_assignee(db: AsyncSession, assignee_id: int | None) -> None:

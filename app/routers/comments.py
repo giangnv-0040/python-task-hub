@@ -9,7 +9,7 @@ from app.models.comment import Comment
 from app.schemas.comment import CommentCreate, CommentRead
 
 # Route thao tac tren Comment, chi nested URL duoi /tasks -> dat o comments.py (R18)
-router = APIRouter(prefix="/api/tasks/{task_id}/comments", tags=["comments"])
+router = APIRouter(prefix="/tasks/{task_id}/comments", tags=["comments"])
 
 
 @router.post(

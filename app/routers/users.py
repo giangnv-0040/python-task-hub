@@ -17,7 +17,7 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.user import Token, UserCreate, UserProfile, UserUpdate
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post(

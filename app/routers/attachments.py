@@ -26,10 +26,10 @@ from app.storage import StorageDep
 
 # Route upload/list nested URL duoi /tasks nhung thao tac tren Attachment (R18)
 task_attachments_router = APIRouter(
-    prefix="/api/tasks/{task_id}/attachments", tags=["attachments"]
+    prefix="/tasks/{task_id}/attachments", tags=["attachments"]
 )
 
-router = APIRouter(prefix="/api/attachments", tags=["attachments"])
+router = APIRouter(prefix="/attachments", tags=["attachments"])
 
 
 @task_attachments_router.post(

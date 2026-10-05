@@ -1,13 +1,13 @@
 # TaskHub API — Đặc tả kỹ thuật (bản chốt)
 
-> Dự án có 2 tài liệu gốc xung đột nhau (đặc tả workspace-based `/api/v1` vs lộ trình 8 ngày đơn giản hơn `/api/...`). Đã chốt: **lấy lộ trình 8 ngày làm nguồn chuẩn**. File này là bản spec hợp nhất, dùng để đối chiếu khi code.
+> Dự án có 2 tài liệu gốc xung đột nhau (đặc tả workspace-based `/api/v1` vs lộ trình 8 ngày đơn giản hơn `/api/...`). Đã chốt: **lấy lộ trình 8 ngày làm nguồn chuẩn**. Mọi endpoint đặt dưới prefix có version `/api/v1` (cấu hình qua env `API_PREFIX`). File này là bản spec hợp nhất, dùng để đối chiếu khi code.
 
 ## Tech stack
 - FastAPI 0.111+
 - SQLAlchemy 2.x (async) + asyncpg
 - Alembic (migration)
 - Pydantic v2
-- Redis (cache `/api/tags` + broker/result backend cho Celery, Ngày 7)
+- Redis (cache `/api/v1/tags` + broker/result backend cho Celery, Ngày 7)
 - Celery (worker gửi email) + Celery Beat (job định kỳ) — Ngày 7
 - Lưu trữ file: local disk (mặc định) / S3 qua `aioboto3` (MinIO khi dev) — Ngày 6
 - pytest + pytest-asyncio + httpx `AsyncClient` (unit test + e2e test) — Ngày 7
@@ -31,7 +31,7 @@
 
 ### Index (tối ưu truy vấn)
 - Đã có: index FK `tasks.project_id`, `tasks.assignee_id`, `tasks.created_by`; unique index `users.username`, `users.email`.
-- Bổ sung Ngày 6: `comments.task_id`, `comments.author_id`, `attachments.task_id`, composite `tasks(status, priority)` phục vụ filter `GET /api/tasks`.
+- Bổ sung Ngày 6: `comments.task_id`, `comments.author_id`, `attachments.task_id`, composite `tasks(status, priority)` phục vụ filter `GET /api/v1/tasks`.
 
 Không có Workspace / multi-tenancy — mọi user đã đăng nhập đều thấy được project/task.
 
@@ -45,12 +45,12 @@ Không có Workspace / multi-tenancy — mọi user đã đăng nhập đều th
 
 | Ngày | Endpoint |
 |---|---|
-| 2 | `GET /api/projects`, `GET /api/projects/{id}`, `GET /api/tags` (+ CRUD đầy đủ Project/Tag: POST/PATCH/DELETE) |
-| 3 | `GET /api/projects/{id}/tasks`, `POST /api/projects/{id}/tasks`, `GET /api/users/{username}/profile` |
-| 4 | `POST /api/users/register`, `POST /api/users/login`, `GET /api/users/me`, `PUT /api/users/me` |
-| 5 | `GET /api/tasks?status=&priority=`, `GET /api/projects/{id}/tasks?skip=&limit=`, `POST /api/tasks/{id}/bookmark` |
-| 6 | `POST /api/tasks/{id}/assign`, `POST /api/tasks/{id}/comments`, `DELETE /api/tasks/{id}/comments/{comment_id}`, `POST /api/tasks/{id}/attachments`, `GET /api/tasks/{id}/attachments`, `GET /api/attachments/{id}/download`, `DELETE /api/attachments/{id}` |
-| 7 | (không thêm endpoint mới — unit/e2e test, Celery gửi email khi có comment/assign, Celery Beat nhắc task sắp đến hạn, cache Redis cho `/api/tags`) |
+| 2 | `GET /api/v1/projects`, `GET /api/v1/projects/{id}`, `GET /api/v1/tags` (+ CRUD đầy đủ Project/Tag: POST/PATCH/DELETE) |
+| 3 | `GET /api/v1/projects/{id}/tasks`, `POST /api/v1/projects/{id}/tasks`, `GET /api/v1/users/{username}/profile` |
+| 4 | `POST /api/v1/users/register`, `POST /api/v1/users/login`, `GET /api/v1/users/me`, `PUT /api/v1/users/me` |
+| 5 | `GET /api/v1/tasks?status=&priority=`, `GET /api/v1/projects/{id}/tasks?skip=&limit=`, `POST /api/v1/tasks/{id}/bookmark` |
+| 6 | `POST /api/v1/tasks/{id}/assign`, `POST /api/v1/tasks/{id}/comments`, `DELETE /api/v1/tasks/{id}/comments/{comment_id}`, `POST /api/v1/tasks/{id}/attachments`, `GET /api/v1/tasks/{id}/attachments`, `GET /api/v1/attachments/{id}/download`, `DELETE /api/v1/attachments/{id}` |
+| 7 | (không thêm endpoint mới — unit/e2e test, Celery gửi email khi có comment/assign, Celery Beat nhắc task sắp đến hạn, cache Redis cho `/api/v1/tags`) |
 | 8 | (không thêm endpoint mới — CORS, logging, debugpy, CLI seeder bằng Typer, Docker) |
 
 ## Quy ước kỹ thuật

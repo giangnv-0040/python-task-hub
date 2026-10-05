@@ -24,7 +24,7 @@ from app.models.project import Project
 from app.models.user import UserRole
 from app.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
 
-router = APIRouter(prefix="/api/projects", tags=["projects"])
+router = APIRouter(prefix="/projects", tags=["projects"])
 
 async def _ensure_valid_manager(db: AsyncSession, manager_id: int | None) -> None:
     # manager_id quyet dinh ai duoc quan ly project (verify_project_manager), nen
