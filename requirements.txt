@@ -13,3 +13,5 @@ passlib[bcrypt]>=1.7
 bcrypt<4.1
 python-jose[cryptography]>=3.3
 python-multipart>=0.0.9
+aiofiles>=23.2
+aioboto3>=13.0

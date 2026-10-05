@@ -48,3 +48,10 @@ async def create_task(
     await db.commit()
     await db.refresh(task, attribute_names=["tags"])
     return task
+
+
+async def assign_task(db: AsyncSession, task: Task, assignee_id: int) -> Task:
+    task.assignee_id = assignee_id
+    await db.commit()
+    await db.refresh(task, attribute_names=["assignee_id", "tags"])
+    return task

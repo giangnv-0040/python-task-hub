@@ -49,3 +49,7 @@ class TaskRead(BaseSchema):
     created_by: int
     created_at: datetime
     tags: list[TagRead] = []
+
+
+class TaskAssign(BaseSchema):
+    assignee_id: PositiveInt

@@ -19,6 +19,13 @@ TAG_COLOR_MAX_LENGTH = 20
 
 TASK_TITLE_MAX_LENGTH = 255
 
+# Cot comments.content la Text (khong gioi han), van chan o schema de tranh spam
+COMMENT_CONTENT_MAX_LENGTH = 5000
+
+ATTACHMENT_FILENAME_MAX_LENGTH = 255
+ATTACHMENT_STORAGE_KEY_MAX_LENGTH = 64
+ATTACHMENT_CONTENT_TYPE_MAX_LENGTH = 100
+
 # Pagination (dung chung cho moi endpoint list, xem app/core/pagination.py)
 DEFAULT_SKIP = 0
 DEFAULT_LIMIT = 20
@@ -44,3 +51,30 @@ PROJECT_MANAGER_NOT_FOUND_RESPONSE = {
 PROJECT_ASSIGNEE_NOT_FOUND_RESPONSE = {
     404: {"description": "Project không tồn tại, hoặc assignee không tồn tại/bị khoá"}
 }
+TASK_ASSIGNEE_NOT_FOUND_RESPONSE = {
+    404: {"description": "Task không tồn tại, hoặc assignee không tồn tại/bị khoá"}
+}
+ATTACHMENT_NOT_FOUND_RESPONSE = {404: {"description": "Attachment không tồn tại"}}
+
+# Upload file (Ngay 6)
+DEFAULT_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10 MB, override qua env MAX_UPLOAD_SIZE
+FILE_CHUNK_SIZE = 64 * 1024  # 64 KB moi lan doc/ghi, khong doc ca file vao RAM
+# S3 multipart upload: moi part (tru part cuoi) toi thieu 5 MB
+S3_MIN_PART_SIZE = 5 * 1024 * 1024
+# Dependency ngoai (S3/MinIO) phai co timeout, khong de request treo vo han (R41)
+S3_CONNECT_TIMEOUT_SECONDS = 5
+S3_READ_TIMEOUT_SECONDS = 10
+ALLOWED_UPLOAD_CONTENT_TYPES = frozenset(
+    {
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/webp",
+        "application/pdf",
+        "text/plain",
+        "text/csv",
+        "application/zip",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+)

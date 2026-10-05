@@ -1,7 +1,7 @@
 import enum
 from datetime import date, datetime
 
-from sqlalchemy import Enum, ForeignKey, String, Text
+from sqlalchemy import Enum, ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -25,6 +25,8 @@ class TaskPriority(str, enum.Enum):
 
 class Task(Base):
     __tablename__ = "tasks"
+    # Composite index phuc vu filter GET /api/tasks?status=&priority=
+    __table_args__ = (Index("ix_tasks_status_priority", "status", "priority"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)

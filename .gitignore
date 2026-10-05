@@ -10,3 +10,6 @@ venv/
 
 # Local-only Claude Code skills (self-review checklist, khong push len git)
 .claude/skills/
+
+# File dinh kem khi STORAGE_BACKEND=local
+/storage/
