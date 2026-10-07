@@ -109,6 +109,20 @@ async def test_seed_without_members_leaves_tasks_unassigned(
     assert set((await db_session.scalars(select(Task.assignee_id))).all()) == {None}
 
 
+@pytest.mark.parametrize(
+    ("role", "is_active"), [(UserRole.MEMBER, True), (UserRole.PM, False)]
+)
+async def test_seed_rejects_existing_user_with_wrong_role_or_inactive(
+    db_session: AsyncSession, fake_redis: FakeRedis, role: UserRole, is_active: bool
+) -> None:
+    # vd ai do tu register username "seed_pm_001" qua API -> khong duoc thanh PM
+    await make_user(db_session, "seed_pm_001", role=role, is_active=is_active)
+
+    with pytest.raises(ConflictException):
+        await seed_service.seed_data(db_session, fake_redis, _options(users=0, projects=1))
+    assert await _count(db_session, Project) == 0
+
+
 async def test_seed_invalidates_tags_cache(
     db_session: AsyncSession, fake_redis: FakeRedis
 ) -> None:

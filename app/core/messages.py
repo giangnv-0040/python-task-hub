@@ -36,5 +36,8 @@ CLI_SEED_DONE = (
 CLI_ADMIN_CREATED = "Admin '{username}' created"
 CLI_ADMIN_ALREADY_EXISTS = "Admin '{username}' already exists, nothing to do"
 CLI_USERNAME_TAKEN_BY_NON_ADMIN = "Username '{username}' already exists and is not an admin"
+CLI_SEED_USER_CONFLICT = (
+    "User '{username}' already exists but is not an active {role}, rename or remove it"
+)
 CLI_RESET_DB_CONFIRM = "Drop ALL data in {database} and re-run migrations?"
 CLI_RESET_DB_DONE = "Database reset to latest migration"

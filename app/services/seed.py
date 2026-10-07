@@ -27,6 +27,8 @@ from app.core.constants import (
     SEED_TAGS,
     SEED_TASK_TITLE,
 )
+from app.core.exceptions import ConflictException
+from app.core.messages import CLI_SEED_USER_CONFLICT
 from app.core.security import hash_password
 from app.crud import project as crud_project
 from app.crud import tag as crud_tag
@@ -67,6 +69,13 @@ async def _ensure_users(
 ) -> list[User]:
     """Tra ve user theo dung thu tu `usernames`, tao user con thieu."""
     existing = {u.username: u for u in await crud_user.get_users_by_usernames(db, usernames)}
+    for user in existing.values():
+        # Username seed co the bi register tay qua API (role MEMBER) hoac bi
+        # khoa -> khong dung lai lam PM/assignee, bao loi thay vi seed sai quyen
+        if user.role != role or not user.is_active:
+            raise ConflictException(
+                CLI_SEED_USER_CONFLICT.format(username=user.username, role=role.value)
+            )
     missing = [name for name in usernames if name not in existing]
     if missing:
         # bcrypt cham (~0.2s) va block CPU -> hash 1 lan dung chung cho moi
