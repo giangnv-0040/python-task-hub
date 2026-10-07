@@ -1,5 +1,6 @@
 from celery import Celery
 from celery.schedules import crontab
+from celery.signals import setup_logging as celery_setup_logging
 
 from app.config import settings
 from app.core.constants import (
@@ -8,6 +9,7 @@ from app.core.constants import (
     REMIND_DUE_TASKS_HOUR,
     REMIND_DUE_TASKS_MINUTE,
 )
+from app.core.logging import setup_logging
 
 celery_app = Celery(
     "taskhub",
@@ -40,3 +42,10 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(hour=REMIND_DUE_TASKS_HOUR, minute=REMIND_DUE_TASKS_MINUTE),
     },
 }
+
+
+@celery_setup_logging.connect
+def _configure_worker_logging(**_: object) -> None:
+    # Co receiver cho signal nay thi Celery khong tu cau hinh lai root logger
+    # -> worker/beat log cung format va LOG_LEVEL voi API
+    setup_logging()

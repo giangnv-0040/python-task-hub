@@ -10,6 +10,11 @@ async def get_tag(db: AsyncSession, tag_id: int) -> Tag | None:
     return await db.get(Tag, tag_id)
 
 
+async def get_tag_by_name(db: AsyncSession, name: str) -> Tag | None:
+    result = await db.execute(select(Tag).where(Tag.name == name))
+    return result.scalar_one_or_none()
+
+
 async def get_tags(db: AsyncSession, pagination: Pagination) -> tuple[list[Tag], int]:
     return await paginate(db, select(Tag).order_by(Tag.id), pagination)
 

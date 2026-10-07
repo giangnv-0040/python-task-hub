@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.user import UserCreate, UserUpdate
 
 
@@ -19,12 +19,24 @@ async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
     return result.scalar_one_or_none()
 
 
-async def create_user(db: AsyncSession, data: UserCreate, hashed_password: str) -> User:
+async def get_users_by_usernames(db: AsyncSession, usernames: list[str]) -> list[User]:
+    result = await db.execute(select(User).where(User.username.in_(usernames)))
+    return list(result.scalars().all())
+
+
+async def create_user(
+    db: AsyncSession,
+    data: UserCreate,
+    hashed_password: str,
+    # Role khong nam trong UserCreate (R30): chi CLI/seeder truyen role khac MEMBER
+    role: UserRole = UserRole.MEMBER,
+) -> User:
     user = User(
         username=data.username,
         email=data.email,
         full_name=data.full_name,
         hashed_password=hashed_password,
+        role=role,
     )
     db.add(user)
     await db.commit()
