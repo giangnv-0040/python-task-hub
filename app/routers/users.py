@@ -1,21 +1,17 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import UNAUTHORIZED_RESPONSE
-from app.core.deps import get_current_active_user, get_current_user
+from app.core.deps import CurrentUser, DbSession, get_current_user
 from app.core.exceptions import ConflictException, NotFoundException, UnauthorizedException
-from app.core.messages import (
-    EMAIL_ALREADY_EXISTS,
-    INVALID_CREDENTIALS,
-    USER_NOT_FOUND,
-    USERNAME_ALREADY_EXISTS,
-)
-from app.core.security import create_access_token, hash_password, verify_password
+from app.core.messages import EMAIL_ALREADY_EXISTS, INVALID_CREDENTIALS, USER_NOT_FOUND
+from app.core.security import create_access_token
 from app.crud import user as crud_user
-from app.database import get_db
 from app.models.user import User
 from app.schemas.user import Token, UserCreate, UserProfile, UserUpdate
+from app.services import user as user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -27,12 +23,8 @@ router = APIRouter(prefix="/users", tags=["users"])
     summary="Đăng ký tài khoản mới",
     responses={409: {"description": "Username hoặc email đã tồn tại"}},
 )
-async def register(data: UserCreate, db: AsyncSession = Depends(get_db)) -> UserProfile:
-    if await crud_user.get_user_by_username(db, data.username) is not None:
-        raise ConflictException(USERNAME_ALREADY_EXISTS)
-    if await crud_user.get_user_by_email(db, data.email) is not None:
-        raise ConflictException(EMAIL_ALREADY_EXISTS)
-    user = await crud_user.create_user(db, data, hash_password(data.password))
+async def register(data: UserCreate, db: DbSession) -> UserProfile:
+    user = await user_service.register_user(db, data)
     return UserProfile.model_validate(user)
 
 
@@ -43,11 +35,11 @@ async def register(data: UserCreate, db: AsyncSession = Depends(get_db)) -> User
     responses={401: {"description": "Sai username hoặc password"}},
 )
 async def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db),
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: DbSession,
 ) -> Token:
-    user = await crud_user.get_user_by_username(db, form_data.username)
-    if user is None or not verify_password(form_data.password, user.hashed_password):
+    user = await user_service.authenticate(db, form_data.username, form_data.password)
+    if user is None:
         raise UnauthorizedException(INVALID_CREDENTIALS)
     token = create_access_token(subject=user.username)
     return Token(access_token=token)
@@ -59,7 +51,7 @@ async def login(
     summary="Thông tin user hiện tại",
     responses=UNAUTHORIZED_RESPONSE,
 )
-async def get_me(current_user: User = Depends(get_current_user)) -> UserProfile:
+async def get_me(current_user: Annotated[User, Depends(get_current_user)]) -> UserProfile:
     return UserProfile.model_validate(current_user)
 
 
@@ -76,8 +68,8 @@ async def get_me(current_user: User = Depends(get_current_user)) -> UserProfile:
 async def update_me(
     data: UserUpdate,
     # Tai khoan bi khoa van xem duoc GET /me nhung khong duoc sua thong tin
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db),
+    current_user: CurrentUser,
+    db: DbSession,
 ) -> UserProfile:
     if data.email is not None and data.email != current_user.email:
         existing = await crud_user.get_user_by_email(db, data.email)
@@ -93,9 +85,7 @@ async def update_me(
     summary="Hồ sơ public của user",
     responses={404: {"description": "User không tồn tại"}},
 )
-async def get_user_profile(
-    username: str, db: AsyncSession = Depends(get_db)
-) -> UserProfile:
+async def get_user_profile(username: str, db: DbSession) -> UserProfile:
     user = await crud_user.get_user_by_username(db, username)
     if user is None:
         raise NotFoundException(USER_NOT_FOUND)

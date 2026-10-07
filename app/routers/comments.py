@@ -7,6 +7,7 @@ from app.core.deps import CurrentUser, DbSession, TaskDetailDep, verify_comment_
 from app.crud import comment as crud_comment
 from app.models.comment import Comment
 from app.schemas.comment import CommentCreate, CommentRead
+from app.services import comment as comment_service
 
 # Route thao tac tren Comment, chi nested URL duoi /tasks -> dat o comments.py (R18)
 router = APIRouter(prefix="/tasks/{task_id}/comments", tags=["comments"])
@@ -25,7 +26,7 @@ async def create_comment(
     task: TaskDetailDep,
     db: DbSession,
 ) -> CommentRead:
-    comment = await crud_comment.create_comment(
+    comment = await comment_service.create_comment(
         db, task.id, data, author_id=current_user.id
     )
     return CommentRead.model_validate(comment)

@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.pagination import Pagination, paginate
 from app.models.project import Project
 from app.schemas.project import ProjectCreate, ProjectUpdate
 
@@ -9,9 +10,10 @@ async def get_project(db: AsyncSession, project_id: int) -> Project | None:
     return await db.get(Project, project_id)
 
 
-async def get_projects(db: AsyncSession) -> list[Project]:
-    result = await db.execute(select(Project))
-    return list(result.scalars().all())
+async def get_projects(
+    db: AsyncSession, pagination: Pagination
+) -> tuple[list[Project], int]:
+    return await paginate(db, select(Project).order_by(Project.id), pagination)
 
 
 async def create_project(db: AsyncSession, data: ProjectCreate) -> Project:

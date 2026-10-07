@@ -5,6 +5,10 @@ from app.models.comment import Comment
 from app.schemas.comment import CommentCreate
 
 
+async def get_comment(db: AsyncSession, comment_id: int) -> Comment | None:
+    return await db.get(Comment, comment_id)
+
+
 async def get_task_comment(
     db: AsyncSession, task_id: int, comment_id: int
 ) -> Comment | None:

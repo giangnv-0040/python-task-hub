@@ -1,7 +1,7 @@
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.pagination import Pagination
+from app.core.pagination import Pagination, paginate
 from app.models.attachment import Attachment
 
 
@@ -12,18 +12,8 @@ async def get_attachment(db: AsyncSession, attachment_id: int) -> Attachment | N
 async def get_attachments_by_task(
     db: AsyncSession, task_id: int, pagination: Pagination
 ) -> tuple[list[Attachment], int]:
-    # Tra ca total (R37) de client biet con trang nao, khong chi list phang
-    total = await db.scalar(
-        select(func.count()).select_from(Attachment).where(Attachment.task_id == task_id)
-    )
-    result = await db.execute(
-        select(Attachment)
-        .where(Attachment.task_id == task_id)
-        .order_by(Attachment.id)
-        .offset(pagination.skip)
-        .limit(pagination.limit)
-    )
-    return list(result.scalars().all()), total or 0
+    query = select(Attachment).where(Attachment.task_id == task_id).order_by(Attachment.id)
+    return await paginate(db, query, pagination)
 
 
 async def create_attachment(

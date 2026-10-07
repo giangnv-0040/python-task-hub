@@ -66,19 +66,19 @@ Tick `[x]` khi làm xong. Xem bối cảnh từng ngày tại [PLAN.md](PLAN.md)
 - [x] `GET /api/attachments/{attachment_id}/download` (`StreamingResponse` + `Content-Disposition`)
 - [x] `DELETE /api/attachments/{attachment_id}` (người upload hoặc Admin/PM; xoá cả file trên storage)
 
-## Ngày 7 — Testing, Background Jobs (Celery) & Caching
+## Ngày 7 — Testing, Background Jobs (Celery) & Caching ✅
 
-- [ ] Cài `pytest`, `pytest-asyncio`, `httpx`; cấu hình `asyncio_mode` trong `pytest.ini`/`pyproject.toml`
-- [ ] `tests/conftest.py`: DB test riêng, tạo/drop schema, override `get_db`, fixture `AsyncClient` + user/token
-- [ ] Unit test: `core/security` (hash/verify password, tạo/giải mã JWT)
-- [ ] Unit test: `crud/*` và dependency phân quyền (`verify_admin_role`, `verify_project_manager`)
-- [ ] E2E test: register → login → tạo project/task → comment → upload/download file
-- [ ] E2E test: case lỗi 401/403/404, filter + pagination `GET /api/tasks`
-- [ ] Celery app (`app/worker/celery_app.py`) với Redis broker/backend
-- [ ] Celery task `send_comment_notification` + `send_assign_notification` (có retry), gọi `.delay()` sau commit
-- [ ] Celery Beat: job `remind_due_tasks` nhắc task sắp đến hạn (24h) mỗi sáng
-- [ ] Test Celery task (chạy eager / mock `.delay()`), kiểm tra mail qua Mailpit
-- [ ] Cache Redis cho `GET /api/tags`, invalidate khi có thay đổi
+- [x] Cài `pytest`, `pytest-asyncio`, `httpx`; cấu hình `asyncio_mode` trong `pytest.ini`/`pyproject.toml`
+- [x] `tests/conftest.py`: DB test riêng, tạo/drop schema, override `get_db`, fixture `AsyncClient` + user/token
+- [x] Unit test: `core/security` (hash/verify password, tạo/giải mã JWT)
+- [x] Unit test: `crud/*` và dependency phân quyền (`verify_admin_role`, `verify_project_manager`)
+- [x] E2E test: register → login → tạo project/task → comment → upload/download file
+- [x] E2E test: case lỗi 401/403/404, filter + pagination `GET /api/tasks`
+- [x] Celery app (`app/worker/celery_app.py`) với Redis broker/backend
+- [x] Celery task `send_comment_notification` + `send_assign_notification` (có retry), gọi `.delay()` sau commit
+- [x] Celery Beat: job `remind_due_tasks` nhắc task sắp đến hạn (24h) mỗi sáng
+- [x] Test Celery task (chạy eager / mock `.delay()`), kiểm tra mail qua Mailpit
+- [x] Cache Redis cho `GET /api/tags`, invalidate khi có thay đổi
 
 ## Ngày 8 — Tổng kết, Debug, Seeder & Build hoàn chỉnh
 

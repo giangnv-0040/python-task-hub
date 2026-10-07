@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.pagination import Pagination, paginate
 from app.models.tag import Tag
 from app.schemas.tag import TagCreate, TagUpdate
 
@@ -9,9 +10,8 @@ async def get_tag(db: AsyncSession, tag_id: int) -> Tag | None:
     return await db.get(Tag, tag_id)
 
 
-async def get_tags(db: AsyncSession) -> list[Tag]:
-    result = await db.execute(select(Tag))
-    return list(result.scalars().all())
+async def get_tags(db: AsyncSession, pagination: Pagination) -> tuple[list[Tag], int]:
+    return await paginate(db, select(Tag).order_by(Tag.id), pagination)
 
 
 async def create_tag(db: AsyncSession, data: TagCreate) -> Tag:
